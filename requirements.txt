@@ -2,3 +2,4 @@ requests
 dotenv
 texttable
 python-dateutil
+beautifulsoup4

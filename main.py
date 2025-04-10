@@ -31,7 +31,7 @@ async def main():
         elif choice == "2":
             result = await api.get_bulletins()
             t = Texttable()
-            t.set_cols_width([23, 15, 25, 50])
+            t.set_cols_width([23, 15, 25, 60])
             # Add header row
             t.add_row(['Title', 'CreatedBy','Created At','Content'])
 
