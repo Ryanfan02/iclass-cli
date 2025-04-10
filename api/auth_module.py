@@ -1,15 +1,16 @@
 # auth_module.py
 import os
 import requests
+import re
 from dotenv import load_dotenv
 
 class Authenticator:
     def __init__(self):
         load_dotenv()
-        self.username = os.getenv('USERNAME')
+        self.username = os.getenv('USERNAMEID')
         self.password = os.getenv('PASSWORD')
         if not self.username or not self.password:
-            raise ValueError("請在 .env 檔案中設定 USERNAME 與 PASSWORD 環境變數。")
+            raise ValueError("請在 .env 檔案中設定 USERNAMEID 與 PASSWORD 環境變數。")
         self.session = requests.Session()
         self.session.headers.update({'Referer': 'https://iclass.tku.edu.tw/'})
         self.auth_url = (
@@ -17,6 +18,17 @@ class Authenticator:
             "?client_id=pdsiclass&response_type=code&redirect_uri=https%3A//iclass.tku.edu.tw/login"
             "&state=L2lwb3J0YWw=&scope=openid,public_profile,email"
         )
+
+    def check_login_success(self,response):
+        content = response.text
+        match = re.search(r"<title>(.*?)</title>", content, re.IGNORECASE)
+
+        if match and match.group(1) == "淡江大學單一登入(SSO)":
+            print("login fail")
+            return False
+        else:
+            print("login pass")
+            return True
 
     def perform_auth(self):
         self.session.get("https://iclass.tku.edu.tw/login?next=/iportal&locale=zh_TW")
@@ -52,8 +64,11 @@ class Authenticator:
             "loginbtn": "登入"
         }
         login_url = f"https://sso.tku.edu.tw/NEAI/login2.do;jsessionid={jsessionid}?action=EAI"
-        self.session.post(login_url, data=payload)
-
+        
+        response = self.session.post(login_url, data=payload)
+        
+        if self.check_login_success(response) != True:
+            return {"erorr":"user name or password maybe not currect on the os level"}
         headers = {'Referer': login_url, 'Upgrade-Insecure-Requests': '1'}
         user_redirect_url = (
             f"https://sso.tku.edu.tw/NEAI/eaido.jsp?"

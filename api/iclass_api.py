@@ -1,5 +1,6 @@
 import json
 import os
+import requests
 class TronClassAPI:
     def __init__(self, session):
         self.session = session
@@ -31,7 +32,7 @@ class TronClassAPI:
         except requests.exceptions.RequestException as e:
             return {"error": f"Error fetching courses: {str(e)}"}
 
-    async def submit_homework(self, activity_id, upload_ids:list):
+    async def submit_homework(self, activity_id:int, upload_ids:list):
         url = f'https://iclass.tku.edu.tw/api/course/activities/{activity_id}/submissions'
 
         headers = {
@@ -59,9 +60,12 @@ class TronClassAPI:
             return {"Submission failed", response.status_code, response.text}
 
     async def upload_file(self,file_path:str):
-        file_name = os.path.basename(file_path)
-        file_size = os.path.getsize(file_path)
-
+        try:
+            file_name = os.path.basename(file_path)
+            file_size = os.path.getsize(file_path)
+        except:
+            return "unable to find file"
+        
         metadata_url = "https://iclass.tku.edu.tw/api/uploads"
 
         headers_metadata = {

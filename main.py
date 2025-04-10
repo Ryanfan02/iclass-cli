@@ -9,7 +9,6 @@ async def main():
     session = auth.perform_auth()
 
     api = TronClassAPI(session)
-
     while True:
         print("\n📚 iClass TKU API Menu")
         print("1. Get Todos")
