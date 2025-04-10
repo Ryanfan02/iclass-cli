@@ -31,9 +31,9 @@ async def main():
         elif choice == "2":
             result = await api.get_bulletins()
             t = Texttable()
-            t.set_cols_width([25, 15, 25, 60])
+            t.set_cols_width([25, 15, 25, 60,10])
             # Add header row
-            t.add_row(['Title', 'CreatedBy','Created At','Content'])
+            t.add_row(['Title', 'CreatedBy','Created At','Content',"files"])
 
             # Filter data and add to table
             for bulletin in result['bulletins']:
@@ -54,7 +54,12 @@ async def main():
                         text = text[:int(60/2)] + "\n" + text[int(60/2):]
                     contentText+=text+"\n"
                 
-                t.add_row([title, created_by_name,created_at,contentText])
+                #get the file_reference_id
+                file_references = []
+                uploads = bulletin.get('uploads')
+                for fileMetaData in uploads:
+                    file_references.append(fileMetaData['reference_id'])
+                t.add_row([title, created_by_name,created_at,contentText,file_references])
             print("\n📢 Bulletins:")
             print(t.draw())
 
