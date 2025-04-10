@@ -2,6 +2,7 @@ import json
 import os
 import requests
 import urllib.parse
+import re
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
@@ -38,8 +39,27 @@ class TronClassAPI:
             return response.json()
         except requests.exceptions.RequestException as e:
             return {"error": f"Error fetching bulletins: {str(e)}"}
-    async def dowload(self,):
-        pass
+
+    async def dowload(self,reference_id):
+        url = f"https://iclass.tku.edu.tw/api/uploads/reference/{reference_id}/blob"
+        response = self.session.get(url, stream=True)
+
+        # Get filename from Content-Disposition (RFC 5987 format)
+        cd = response.headers.get('Content-Disposition')
+        filename = 'downloaded_file'  # fallback
+
+        if cd and "filename*=" in cd:
+            encoded_filename = cd.split("filename*=UTF-8''")[-1]
+            filename = urllib.parse.unquote(encoded_filename)
+
+        # Save file
+        with open(filename, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+
+        print(f"Saved as {filename}")
+
     async def get_courses(self):
         url = 'https://iclass.tku.edu.tw/api/my-courses?conditions={"status":["ongoing"]}'
         try:
