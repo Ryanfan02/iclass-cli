@@ -1,7 +1,7 @@
 venv/
 build/
 dist/
-/api/__pycache__/
+/api/pycache/*
 .env
 .vs
 *.spec
