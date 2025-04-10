@@ -31,7 +31,7 @@ async def main():
         elif choice == "2":
             result = await api.get_bulletins()
             t = Texttable()
-            t.set_cols_width([23, 15, 25, 60])
+            t.set_cols_width([25, 15, 25, 60])
             # Add header row
             t.add_row(['Title', 'CreatedBy','Created At','Content'])
 
@@ -41,10 +41,12 @@ async def main():
                 created_by_name = bulletin['created_by'].get('name', '')
                 html_content = bulletin.get('content', '')
                 created_at = bulletin.get('created_at', '')    
-                # Add row to table
                 html_content 
                 soup = BeautifulSoup(html_content, 'html.parser')
                 content = soup.get_text(separator='\n')
+                if len(title) > (25 / 2):
+                    title = title[:int(25/2)] + "\n" + title[int(25/2):]
+                    
                 t.add_row([title, created_by_name,created_at,content])
             print("\n📢 Bulletins:")
             print(t.draw())
