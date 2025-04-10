@@ -18,10 +18,11 @@ async def main():
         print("2. Get Bulletins")
         print("3. Get Courses")
         print("4. Upload File")
-        print("5. Submit Homework")
-        print("6. Exit")
+        print("5. Dowload File")
+        print("6. Submit Homework")
+        print("7. Exit")
 
-        choice = input("Select an option (1- 7): ")
+        choice = input("Select an option (1-7): ")
 
         if choice == "1":
             result = await api.get_todos()
