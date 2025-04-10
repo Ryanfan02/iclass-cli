@@ -8,3 +8,4 @@ dist/
 *.spec
 test*
 *.pyc
+/api/__pycache__
