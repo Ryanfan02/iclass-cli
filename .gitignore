@@ -1,9 +1,8 @@
 venv/
 build/
 dist/
-/api/pycache/*
 .env
 .vs
-*.spec
-*.pyc
 test*
+*.pyc
+*.spec

@@ -41,13 +41,20 @@ async def main():
                 created_by_name = bulletin['created_by'].get('name', '')
                 html_content = bulletin.get('content', '')
                 created_at = bulletin.get('created_at', '')    
-                html_content 
                 soup = BeautifulSoup(html_content, 'html.parser')
                 content = soup.get_text(separator='\n')
+                
+                #This is for Big-5 font size is lager then other entext 
                 if len(title) > (25 / 2):
                     title = title[:int(25/2)] + "\n" + title[int(25/2):]
-                    
-                t.add_row([title, created_by_name,created_at,content])
+                contentList = content.split("\n")
+                contentText = ""
+                for text in contentList:
+                    if len(text) > (60 / 2):
+                        text = text[:int(60/2)] + "\n" + text[int(60/2):]
+                    contentText+=text+"\n"
+                
+                t.add_row([title, created_by_name,created_at,contentText])
             print("\n📢 Bulletins:")
             print(t.draw())
 
