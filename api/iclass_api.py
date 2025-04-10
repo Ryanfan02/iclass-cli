@@ -57,8 +57,7 @@ class TronClassAPI:
             for chunk in response.iter_content(chunk_size=8192):
                 if chunk:
                     f.write(chunk)
-
-        print(f"Saved as {filename}")
+        return filename
 
     async def get_courses(self):
         url = 'https://iclass.tku.edu.tw/api/my-courses?conditions={"status":["ongoing"]}'

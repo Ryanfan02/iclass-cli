@@ -21,7 +21,7 @@ async def main():
         print("5. Submit Homework")
         print("6. Exit")
 
-        choice = input("Select an option (1-6): ")
+        choice = input("Select an option (1- 7): ")
 
         if choice == "1":
             result = await api.get_todos()
@@ -77,12 +77,18 @@ async def main():
                 instructors = ', '.join(instr.get('name') for instr in course.get('instructors', []))
                 table.add_row([course_id, course_name, credit, instructors])
             print(table.draw())
+
         elif choice == "4":
             file_path = input("Enter the file path to upload: ").strip()
             upload_id = await api.upload_file(file_path)
             print(f"\n📁 Uploaded file ID: {upload_id}")
 
         elif choice == "5":
+            file_references_id = input("Enter the file id to dowload: ").strip()
+            fileName = await api.dowload(file_references_id)
+            print(f"\n📁 Saved as {fileName}")
+
+        elif choice == "6":
             try:
                 activity_id = int(input("Enter activity ID: "))
                 upload_ids = input("Enter upload file IDs (comma-separated): ")
@@ -93,12 +99,12 @@ async def main():
             except ValueError:
                 print("❌ Invalid input. Please enter numbers only.")
 
-        elif choice == "6":
+        elif choice == "7":
             print("👋 Exiting...")
             break
 
         else:
-            print("❌ Invalid option. Please choose a number between 1 and 6.")
+            print("❌ Invalid option.")
 
 if __name__ == '__main__':
     asyncio.run(main())
