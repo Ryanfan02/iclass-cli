@@ -100,7 +100,7 @@ async def main():
             except ValueError:
                 print("❌ Invalid input. Please enter numbers only.")
 
-        elif choice == "7":
+        elif choice == "7" or "exit":
             print("👋 Exiting...")
             break
 
