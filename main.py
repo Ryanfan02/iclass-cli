@@ -2,6 +2,7 @@
 import asyncio
 from api.auth_module import Authenticator
 from api.iclass_api import TronClassAPI
+from texttable import Texttable
 
 async def main():
     print("🔐 Logging in...")
@@ -9,6 +10,7 @@ async def main():
     session = auth.perform_auth()
 
     api = TronClassAPI(session)
+
     while True:
         print("\n📚 iClass TKU API Menu")
         print("1. Get Todos")
@@ -33,8 +35,17 @@ async def main():
         elif choice == "3":
             result = await api.get_courses()
             print("\n🎓 Courses:")
-            print(result)
+            table = Texttable()
+            table.header(['ID', '名稱', '學分', '教師'])
 
+            # Loop through the courses and extract the needed fields
+            for course in result.get('courses', []):
+                course_id = course.get('id')
+                course_name = course.get('name')
+                credit = course.get('credit')
+                instructors = ', '.join(instr.get('name') for instr in course.get('instructors', []))
+                table.add_row([course_id, course_name, credit, instructors])
+            print(table.draw())
         elif choice == "4":
             file_path = input("Enter the file path to upload: ").strip()
             upload_id = await api.upload_file(file_path)
