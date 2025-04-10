@@ -7,7 +7,7 @@ import re
 from texttable import Texttable
 
 """
- this api is not using
+ this api is not been used
 """
 
 
