@@ -3,6 +3,7 @@ import asyncio
 from api.auth_module import Authenticator
 from api.iclass_api import TronClassAPI
 from texttable import Texttable
+from bs4 import BeautifulSoup
 
 async def main():
     print("🔐 Logging in...")
@@ -29,8 +30,24 @@ async def main():
 
         elif choice == "2":
             result = await api.get_bulletins()
+            t = Texttable()
+            t.set_cols_width([23, 15, 25, 50])
+            # Add header row
+            t.add_row(['Title', 'CreatedBy','Created At','Content'])
+
+            # Filter data and add to table
+            for bulletin in result['bulletins']:
+                title = bulletin.get('title', '')
+                created_by_name = bulletin['created_by'].get('name', '')
+                html_content = bulletin.get('content', '')
+                created_at = bulletin.get('created_at', '')    
+                # Add row to table
+                html_content 
+                soup = BeautifulSoup(html_content, 'html.parser')
+                content = soup.get_text()
+                t.add_row([title, created_by_name,created_at,content])
             print("\n📢 Bulletins:")
-            print(result)
+            print(t.draw())
 
         elif choice == "3":
             result = await api.get_courses()

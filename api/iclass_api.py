@@ -1,6 +1,10 @@
 import json
 import os
 import requests
+import urllib.parse
+from datetime import date
+from dateutil.relativedelta import relativedelta
+
 class TronClassAPI:
     def __init__(self, session):
         self.session = session
@@ -15,7 +19,19 @@ class TronClassAPI:
             return {"error": f"Error fetching todos: {str(e)}"}
 
     async def get_bulletins(self):
-        url = "https://iclass.tku.edu.tw/api/course-bulletins"
+        base_url = 'https://iclass.tku.edu.tw/api/course-bulletins'
+        today = date.today()
+        one_month_ago = today - relativedelta(months=1)
+        conditions = {
+        "start_date": one_month_ago.isoformat(),
+        "end_date": today.isoformat(),
+        "keyword": ""
+        }
+        query_string = urllib.parse.urlencode({
+            "conditions": json.dumps(conditions)
+        })
+
+        url = f"{base_url}?{query_string}"
         try:
             response = self.session.get(url)
             response.raise_for_status()
