@@ -44,7 +44,7 @@ async def main():
                 # Add row to table
                 html_content 
                 soup = BeautifulSoup(html_content, 'html.parser')
-                content = soup.get_text()
+                content = soup.get_text(separator='\n')
                 t.add_row([title, created_by_name,created_at,content])
             print("\n📢 Bulletins:")
             print(t.draw())

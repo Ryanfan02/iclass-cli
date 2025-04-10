@@ -1,11 +1,9 @@
 venv/
-api/__pycache__/*
-__pycache__/*
 build/
 dist/
+/api/__pycache__/
 .env
 .vs
 *.spec
-test*
 *.pyc
-/api/__pycache__
+test*
