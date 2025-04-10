@@ -38,7 +38,8 @@ class TronClassAPI:
             return response.json()
         except requests.exceptions.RequestException as e:
             return {"error": f"Error fetching bulletins: {str(e)}"}
-
+    async def dowload(self,):
+        pass
     async def get_courses(self):
         url = 'https://iclass.tku.edu.tw/api/my-courses?conditions={"status":["ongoing"]}'
         try:
