@@ -80,8 +80,11 @@ async def main():
             print(table.draw())
 
         elif choice == "4":
-            file_path = input("Enter the file path to upload: ").strip()
-            upload_id = await api.upload_file(file_path)
+            file_paths = input("Enter the file path to upload: ").split(",")
+            upload_ids = []
+            for file_path in file_paths:
+                upload_id = await api.upload_file(file_path.strip())
+                upload_ids.append(upload_id.strip())
             print(f"\n📁 Uploaded file ID: {upload_id}")
 
         elif choice == "5":
