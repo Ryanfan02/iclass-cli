@@ -82,10 +82,11 @@ async def main():
         elif choice == "4":
             file_paths = input("Enter the file path to upload: ").split(",")
             upload_ids = []
-            for file_path in file_paths:
-                upload_id = await api.upload_file(file_path.strip())
-                upload_ids.append(upload_id.strip())
-            print(f"\n📁 Uploaded file ID: {upload_id}")
+            for filePath in file_paths:
+                print(f"📁Uploading {filePath.strip()}")
+                upload_id = await api.upload_file(filePath.strip())
+                upload_ids.append(upload_id)
+            print(f"\n📁 Uploaded file ID: {upload_ids}")
 
         elif choice == "5":
             file_references_id = input("Enter the file id to dowload: ").strip()
