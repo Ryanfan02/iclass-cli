@@ -26,8 +26,9 @@ async def main():
 
         if choice == "1":
             result = await api.get_todos()
+            formatText = str(result).replace(',', ',\n') 
             print("\n✅ Todos:")
-            print(result)
+            print(formatText)
 
         elif choice == "2":
             result = await api.get_bulletins()
