@@ -2,6 +2,7 @@
 import asyncio
 from api.auth_module import Authenticator
 from api.iclass_api import TronClassAPI
+from api.ilife_api import IifeAPI
 from texttable import Texttable
 from bs4 import BeautifulSoup
 
@@ -147,7 +148,12 @@ async def main():
                 print(result)
             except ValueError:
                 print("❌ Invalid input. Please enter numbers only.")
-
+        elif choice == "class":
+            classApi = IifeAPI()
+            try:
+                await classApi.displayStuClass()
+            except:
+                print("Do you enter genkey?")
         elif choice == "8" or "exit":
             print("👋 Exiting...")
             break
