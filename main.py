@@ -17,10 +17,11 @@ async def main():
         print("1. Get Todos")
         print("2. Get Bulletins")
         print("3. Get Courses")
-        print("4. Upload File")
-        print("5. Dowload File")
-        print("6. Submit Homework")
-        print("7. Exit")
+        print("4. Get Activities")
+        print("5. Upload File")
+        print("6. Download File")
+        print("7. Submit Homework")
+        print("8. Exit")
 
         choice = input("Select an option (1-7): ")
 
@@ -79,8 +80,30 @@ async def main():
                 instructors = ', '.join(instr.get('name') for instr in course.get('instructors', []))
                 table.add_row([course_id, course_name, credit, instructors])
             print(table.draw())
-
         elif choice == "4":
+            course_id = input("Enter the course ID: ").strip()
+            response = await api.get_activities(course_id)
+            table = Texttable()
+            table.set_cols_align(["l", "l", "l", "l", "l", "l"])
+            table.header(["Description", "Deadline", "ID", "Type", "Upload Name", "Upload Ref ID"])
+
+            for activity in response["activities"]:
+                description = activity["data"].get("description", "")
+                deadline = activity.get("deadline", "")
+                activity_id = activity.get("id", "")
+                activity_type = activity.get("type", "")
+
+                uploads = activity.get("uploads", [])
+                if uploads:
+                    for upload in uploads:
+                        upload_name = upload.get("name", "")
+                        upload_ref_id = upload.get("reference_id", "")
+                        table.add_row([description, deadline, activity_id, activity_type, upload_name, upload_ref_id])
+                else:
+                    table.add_row([description, deadline, activity_id, activity_type, "", ""])
+
+            print(table.draw())
+        elif choice == "5":
             file_paths = input("Enter the file path to upload: ").split(",")
             upload_ids = []
             for filePath in file_paths:
@@ -89,12 +112,12 @@ async def main():
                 upload_ids.append(upload_id)
             print(f"\n📁 Uploaded file ID: {upload_ids}")
 
-        elif choice == "5":
+        elif choice == "6":
             file_references_id = input("Enter the file id to dowload: ").strip()
             fileName = await api.dowload(file_references_id)
             print(f"\n📁 Saved as {fileName}")
 
-        elif choice == "6":
+        elif choice == "7":
             try:
                 activity_id = int(input("Enter activity ID: "))
                 upload_ids = input("Enter upload file IDs (comma-separated): ")
@@ -105,7 +128,7 @@ async def main():
             except ValueError:
                 print("❌ Invalid input. Please enter numbers only.")
 
-        elif choice == "7" or "exit":
+        elif choice == "8" or "exit":
             print("👋 Exiting...")
             break
 
