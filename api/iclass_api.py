@@ -40,7 +40,7 @@ class TronClassAPI:
         except requests.exceptions.RequestException as e:
             return {"error": f"Error fetching bulletins: {str(e)}"}
 
-    async def dowload(self,reference_id):
+    async def download(self,reference_id):
         url = f"https://iclass.tku.edu.tw/api/uploads/reference/{reference_id}/blob"
         response = self.session.get(url, stream=True)
 
@@ -61,6 +61,15 @@ class TronClassAPI:
 
     async def get_courses(self):
         url = 'https://iclass.tku.edu.tw/api/my-courses?conditions={"status":["ongoing"]}'
+        try:
+            response = self.session.get(url)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            return {"error": f"Error fetching courses: {str(e)}"}
+    
+    async def get_activities(self,course_id):
+        url = f'https://iclass.tku.edu.tw/api/courses/{course_id}/activities?sub_course_id=0'
         try:
             response = self.session.get(url)
             response.raise_for_status()
