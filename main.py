@@ -86,12 +86,23 @@ async def main():
             response = await api.get_activities(course_id)
             table = Texttable()
             table.set_cols_align(["l", "l", "l", "l", "l", "l"])
-            table.header(["ID", "Type","Deadline", "File Name", "File ID","Description"])
+            table.set_cols_width([10, 10, 20, 20, 10, 60])  # Adjust column widths for better wrapping
+            table.header(["ID", "Type", "Deadline", "File Name", "File ID", "Description"])
 
             for activity in response["activities"]:
-                description = activity["data"].get("description", "")
-                soup = BeautifulSoup(description, 'html.parser')
-                descriptionContent = soup.get_text(separator='\n')
+                raw_description = activity["data"].get("description", "")
+                soup = BeautifulSoup(raw_description, 'html.parser')
+                description = soup.get_text(separator='\n').strip()
+
+                # Optionally wrap long lines for better fit in table
+                wrapped_description = ""
+                for line in description.splitlines():
+                    while len(line) > 60:
+                        wrapped_description += line[:60] + "\n"
+                        line = line[60:]
+                    wrapped_description += line + "\n"
+                wrapped_description = wrapped_description.strip()
+
                 deadline = activity.get("deadline", "")
                 activity_id = activity.get("id", "")
                 activity_type = activity.get("type", "")
@@ -101,9 +112,15 @@ async def main():
                     for upload in uploads:
                         upload_name = upload.get("name", "")
                         upload_ref_id = upload.get("reference_id", "")
-                        table.add_row([activity_id, activity_type, deadline, upload_name, upload_ref_id, descriptionContent])
+                        table.add_row([
+                            activity_id, activity_type, deadline,
+                            upload_name, upload_ref_id, wrapped_description
+                        ])
                 else:
-                    table.add_row([activity_id, activity_type, deadline,"", "", descriptionContent])
+                    table.add_row([
+                        activity_id, activity_type, deadline,
+                        "", "", wrapped_description
+                    ])
 
             print(table.draw())
         elif choice == "5":
