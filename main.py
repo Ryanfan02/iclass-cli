@@ -148,6 +148,26 @@ async def main():
                 print(result)
             except ValueError:
                 print("❌ Invalid input. Please enter numbers only.")
+
+        elif choice == "dla":
+            downloadIdList = []
+            try:
+                course_id = input("Enter the course ID: ").strip()
+                response = await api.get_activities(course_id)
+                for activity in response["activities"]:
+                    uploads = activity.get("uploads", [])
+                    if uploads:
+                        for upload in uploads:
+                            upload_name = upload.get("name", "")
+                            upload_ref_id = upload.get("reference_id", "")
+                            downloadIdList.append(upload_ref_id)
+            except:
+                print("Error")
+            print("Start Downloading File",downloadIdList)
+            for file in downloadIdList:
+                fileName = await api.download(file)
+                print(f"\n📁 Saved as {fileName}")
+
         elif choice == "class":
             classApi = IifeAPI()
             try:
