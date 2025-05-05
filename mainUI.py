@@ -1,97 +1,105 @@
 # main.py
 import asyncio
 import curses
-import json
 from api.auth_module import Authenticator
 from api.iclass_api import TronClassAPI
 
-MENU_OPTIONS = [
-    "Get Todos",
-    "Get Bulletins",
-    "Get Courses",
-    "Upload File",
-    "Submit Homework",
-    "Exit"
-]
-
-async def handle_selection(api, stdscr, index):
-    curses.echo()
+def draw_menu(stdscr, selected_idx, options, title):
     stdscr.clear()
+    h, w = stdscr.getmaxyx()
+    stdscr.addstr(1, w//2 - len(title)//2, title, curses.A_BOLD | curses.A_UNDERLINE)
 
-    if index == 0:
-        result = await api.get_todos()
-        stdscr.addstr(0, 0, "Todos:\n" + json.dumps(result, indent=2))
-    elif index == 1:
-        result = await api.get_bulletins()
-        stdscr.addstr(0, 0, "Bulletins:\n" + json.dumps(result, indent=2))
-    elif index == 2:
-        result = await api.get_courses()
-        stdscr.addstr(0, 0, "Courses:\n" + json.dumps(result, indent=2))
-    elif index == 3:
-        stdscr.addstr(0, 0, "Enter file path to upload: ")
-        curses.curs_set(1)
-        file_path = stdscr.getstr().decode()
-        curses.curs_set(0)
-        result = await api.upload_file(file_path)
-        stdscr.addstr(2, 0, f"Upload Result: {result}")
-    elif index == 4:
-        stdscr.addstr(0, 0, "Enter activity ID: ")
-        curses.curs_set(1)
-        activity_id = int(stdscr.getstr().decode())
-        stdscr.addstr(1, 0, "Enter upload file IDs (comma-separated): ")
-        upload_ids = [int(i.strip()) for i in stdscr.getstr().decode().split(",")]
-        curses.curs_set(0)
-        result = await api.submit_homework(activity_id, upload_ids)
-        stdscr.addstr(3, 0, f"Submit Result: {result}")
-    elif index == 5:
-        return False  # Exit
+    for idx, option in enumerate(options):
+        x = w // 2 - 30
+        y = 3 + idx
+        if idx == selected_idx:
+            stdscr.attron(curses.color_pair(1))
+            stdscr.addstr(y, x, option)
+            stdscr.attroff(curses.color_pair(1))
+        else:
+            stdscr.addstr(y, x, option)
+    stdscr.refresh()
 
-    stdscr.addstr(curses.LINES - 2, 0, "Press any key to return to menu...")
-    stdscr.getch()
-    return True
+async def handle_course_actions(stdscr, api, course_id):
+    actions = ["View Activities", "Download Files", "Submit Homework", "Back"]
+    selected = 0
+    while True:
+        draw_menu(stdscr, selected, actions, f"Course ID: {course_id} - Actions")
+        key = stdscr.getch()
+        if key == curses.KEY_UP and selected > 0:
+            selected -= 1
+        elif key == curses.KEY_DOWN and selected < len(actions) - 1:
+            selected += 1
+        elif key in [curses.KEY_ENTER, ord("\n")]:
+            action = actions[selected]
+            if action == "View Activities":
+                response = await api.get_activities(course_id)
+                stdscr.clear()
+                stdscr.addstr(1, 2, f"Activities for Course ID {course_id}:", curses.A_BOLD)
+                y = 3
+                for act in response["activities"]:
+                    stdscr.addstr(y, 4, f"{act['id']}: {act['type']} - {act.get('deadline', '')}")
+                    y += 1
+                    if y >= curses.LINES - 2:
+                        stdscr.addstr(y, 4, "-- More --")
+                        stdscr.getch()
+                        y = 3
+                        stdscr.clear()
+                stdscr.addstr(y + 1, 2, "Press any key to go back...")
+                stdscr.getch()
+
+            elif action == "Download Files":
+                response = await api.get_activities(course_id)
+                for act in response["activities"]:
+                    for upload in act.get("uploads", []):
+                        file_id = upload.get("reference_id")
+                        filename = await api.download(file_id)
+                        stdscr.addstr(1, 2, f"Downloaded {filename}")
+                        stdscr.getch()
+
+            elif action == "Submit Homework":
+                stdscr.clear()
+                curses.echo()
+                stdscr.addstr(2, 2, "Enter activity ID: ")
+                activity_id = int(stdscr.getstr(2, 25).decode())
+                stdscr.addstr(3, 2, "Enter upload file IDs (comma-separated): ")
+                upload_ids = stdscr.getstr(3, 40).decode().split(",")
+                upload_ids = [int(uid.strip()) for uid in upload_ids]
+                result = await api.submit_homework(activity_id, upload_ids)
+                stdscr.addstr(5, 2, str(result))
+                curses.noecho()
+                stdscr.getch()
+            elif action == "Back":
+                break
 
 async def curses_main(stdscr):
-    curses.curs_set(0)  # Hide cursor
-    current_row = 0
+    curses.curs_set(0)
+    curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_CYAN)
 
-    stdscr.clear()
-    stdscr.addstr(0, 0, "🔐 Logging in...")
+    stdscr.addstr(0, 0, "🔐 Logging in...", curses.A_BOLD)
     stdscr.refresh()
 
     auth = Authenticator()
     session = auth.perform_auth()
     api = TronClassAPI(session)
 
+    result = await api.get_courses()
+    courses = result.get("courses", [])
+    course_options = [f"{c['id']} - {c['name']}" for c in courses]
+
+    selected_idx = 0
     while True:
-        stdscr.clear()
-        stdscr.addstr(0, 0, "📚 iClass TKU - Use ↑ ↓ and Enter to select\n", curses.A_BOLD)
-
-        for idx, option in enumerate(MENU_OPTIONS):
-            if idx == current_row:
-                stdscr.attron(curses.color_pair(1))
-                stdscr.addstr(idx + 2, 2, f"> {option}")
-                stdscr.attroff(curses.color_pair(1))
-            else:
-                stdscr.addstr(idx + 2, 4, option)
-
+        draw_menu(stdscr, selected_idx, course_options + ["Exit"], "🎓 Select a Course")
         key = stdscr.getch()
-
-        if key == curses.KEY_UP:
-            current_row = (current_row - 1) % len(MENU_OPTIONS)
-        elif key == curses.KEY_DOWN:
-            current_row = (current_row + 1) % len(MENU_OPTIONS)
-        elif key in [curses.KEY_ENTER, 10, 13]:
-            should_continue = await handle_selection(api, stdscr, current_row)
-            if not should_continue:
+        if key == curses.KEY_UP and selected_idx > 0:
+            selected_idx -= 1
+        elif key == curses.KEY_DOWN and selected_idx < len(course_options):
+            selected_idx += 1
+        elif key in [curses.KEY_ENTER, ord('\n')]:
+            if selected_idx == len(course_options):
                 break
-
-def main():
-    curses.wrapper(run_curses)
-
-def run_curses(stdscr):
-    curses.start_color()
-    curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_CYAN)
-    asyncio.run(curses_main(stdscr))
+            selected_course = courses[selected_idx]
+            await handle_course_actions(stdscr, api, selected_course["id"])
 
 if __name__ == '__main__':
-    main()
+    curses.wrapper(lambda stdscr: asyncio.run(curses_main(stdscr)))
