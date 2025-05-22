@@ -134,9 +134,10 @@ async def main():
             print(f"\n📁 Uploaded file ID: {upload_ids}")
 
         elif choice == "6":
-            file_references_id = input("Enter the file id to download: ").strip()
-            fileName = await api.download(file_references_id)
-            print(f"\n📁 Saved as {fileName}")
+            file_references_ids = input("Enter the file id to download: ").strip().split(",")
+            for file_references_id in file_references_ids:
+                fileName = await api.download(file_references_id)
+                print(f"\n📁 Saved as {fileName}")
 
         elif choice == "7":
             try:
