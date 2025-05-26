@@ -344,7 +344,7 @@ async def get_my_files_ui(stdscr, api):
                 # Download selected file
                 file_ref = file_ids[selected]
                 try:
-                    filepath = await api.download(file_ref)
+                    filepath = await api.myfiledownload(file_ref)
                     stdscr.clear()
                     stdscr.addstr(3, 2, f"✅ Downloaded to: {filepath}")
                 except Exception as e:
