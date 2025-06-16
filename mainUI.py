@@ -1,12 +1,12 @@
 # mainUI.py
 import asyncio
-import signal
 import curses
+import os
+import signal
 from api.auth_module import Authenticator
 from api.iclass_api import TronClassAPI
 from bs4 import BeautifulSoup
 from datetime import datetime
-import os
 
 def handle_exit(signum, frame):
     raise KeyboardInterrupt
