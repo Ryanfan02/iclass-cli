@@ -427,6 +427,19 @@ async def get_my_files_ui(stdscr, api, sumit=False):
         elif key == curses.KEY_LEFT and page > 1:
             page -= 1
             selected = 0
+        elif key == curses.KEY_DC:  # Delete key
+            try:
+                file_ref = file_ids[selected]
+                await api.deleteUpload([file_ref])
+                cached_pages.pop(page, None)
+                stdscr.clear()
+                stdscr.addstr(3, 2, f"✅ File deleted successfully.")
+            except Exception as e:
+                stdscr.clear()
+                stdscr.addstr(3, 2, f"❌ File deletion failed: {e}")
+            stdscr.addstr(5, 2, "Press any key to continue...")
+            stdscr.refresh()
+            stdscr.getch()
         elif key == ord('s') and sumit:
             return file_ids[selected]
         elif key in [curses.KEY_ENTER, ord("\n")]:
