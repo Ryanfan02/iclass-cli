@@ -168,12 +168,15 @@ async def activityHandler(stdscr, api, activity_id):
         "📝 Description:"
     ] + wrapped_desc + [
         "",
-        "🔙 Press 'q' to go back | 💾 Press 'd' to download all files"
+        "🔙 Press 'q' to go back" + (" | 💾 Press 'd' to download all files" if uploads else "") +
+        (" | 📥 Press 'a' to assign files for homework" if activity_type == "homework" else "") +
+        (" | 📤 Press 's' to submit homework" if activity_type == "homework" else "")
     ]
 
     offset = 0
     h, w = stdscr.getmaxyx()
     status = ""
+    myfileids = []
     while True:
         stdscr.clear()
         for i, line in enumerate(lines[offset:offset + h - 2]):
@@ -189,6 +192,26 @@ async def activityHandler(stdscr, api, activity_id):
             offset -= 1
         elif key == curses.KEY_DOWN and offset < len(lines) - h + 2:
             offset += 1
+        elif key == ord('a') and activity_type == "homework":
+            status = "📤 Selecteing files..."
+            stdscr.refresh()
+            try:
+                myfileid = await get_my_files_ui(stdscr, api, sumit=True)
+                if not myfileid:
+                    status = "❌ No files selected"
+                    continue
+                myfileids.append(myfileid)
+                status = f"✅ Files selected: {', '.join(map(str, myfileids))}"
+            except Exception as e:
+                status = f"❌ Selected failed: {e}"
+        elif key == ord('s') and activity_type=="homework":
+            status = "📤 Submitting homework..."
+            stdscr.refresh()
+            try:
+                await api.submit_homework(activity_id, myfileids)
+                status = "✅ Homework submitted successfully!"
+            except Exception as e:
+                status = f"❌ Submission failed: {e}"
         elif key == ord('d') and uploads:
             status = "⬇️ Downloading all files..."
             stdscr.refresh()
@@ -317,7 +340,7 @@ async def handle_course_actions(stdscr, api, course_id):
                 break
             await activityHandler(stdscr, api, activity_id)
 
-async def get_my_files_ui(stdscr, api):
+async def get_my_files_ui(stdscr, api, sumit=False):
     curses.curs_set(0)
     curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_CYAN)
 
@@ -371,6 +394,9 @@ async def get_my_files_ui(stdscr, api):
             else:
                 stdscr.addstr(y, 2, entry[:w - 4])
 
+        if sumit:
+            stdscr.addstr(h - 2, 2, "Press 's' to select file for submission", curses.A_BOLD)
+
         stdscr.refresh()
         key = stdscr.getch()
 
@@ -384,6 +410,8 @@ async def get_my_files_ui(stdscr, api):
         elif key == curses.KEY_LEFT and page > 1:
             page -= 1
             selected = 0
+        elif key == ord('s') and sumit:
+            return file_ids[selected]
         elif key in [curses.KEY_ENTER, ord("\n")]:
             if selected == len(entries) - 2:
                 if page < max_pages:
