@@ -114,9 +114,9 @@ async def getMyToDoList(stdscr, api):
         elif key in [curses.KEY_ENTER, ord('\n')]:
             if selected == len(tasks) - 1:
                 break
-            await show_task_detail(stdscr, api, todos[selected]["id"])
+            await activityHandler(stdscr, api, todos[selected]["id"])
 
-async def show_task_detail(stdscr, api, activity_id):
+async def activityHandler(stdscr, api, activity_id):
     stdscr.clear()
     curses.curs_set(0)
 
@@ -301,7 +301,7 @@ async def handle_course_actions(stdscr, api, course_id):
             activity_id, _ = activities_meta[selected]
             if activity_id is None:
                 break
-            await show_task_detail(stdscr, api, activity_id)
+            await activityHandler(stdscr, api, activity_id)
 
 async def get_my_files_ui(stdscr, api):
     curses.curs_set(0)
