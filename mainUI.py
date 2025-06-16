@@ -111,6 +111,8 @@ async def getMyToDoList(stdscr, api):
             selected -= 1
         elif key == curses.KEY_DOWN and selected < len(tasks) - 1:
             selected += 1
+        elif key == ord('q'):
+            break
         elif key in [curses.KEY_ENTER, ord('\n')]:
             if selected == len(tasks) - 1:
                 break
@@ -239,6 +241,8 @@ async def mycurses(stdscr,api):
             selected_idx -= 1
         elif key == curses.KEY_DOWN and selected_idx < len(course_options):
             selected_idx += 1
+        elif key == ord('q'):
+            break
         elif key in [curses.KEY_ENTER, ord('\n')]:
             if selected_idx == len(course_options):
                 break
@@ -297,6 +301,8 @@ async def handle_course_actions(stdscr, api, course_id):
             selected -= 1
         elif key == curses.KEY_DOWN and selected < len(activities_meta) - 1:
             selected += 1
+        elif key == ord('q'):
+            break
         elif key in [curses.KEY_ENTER, ord("\n")]:
             activity_id, _ = activities_meta[selected]
             if activity_id is None:
