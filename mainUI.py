@@ -209,10 +209,11 @@ async def activityHandler(stdscr, api, activity_id):
             stdscr.refresh()
             try:
                 response = await api.submit_homework(activity_id, myfileids)
-                if response.get("status_code") == 404 and "message" in response:
-                    status = f"❌ Submission failed: {response['message']}"
-                else:
-                    status = "✅ Homework submitted successfully!"
+                print(response)
+                if "success" in response:
+                    status = "✅ Submission successful!"
+                else:   
+                    status = f"❌ Submission failed: {response}"
             except Exception as e:
                 status = f"❌ Submission failed: {e}"
         elif key == ord('d') and uploads:
