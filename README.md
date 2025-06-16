@@ -29,7 +29,7 @@ pyinstaller main.py --onefile --name iclassCLI --add-data '.env:.'
 
 ---
 
-## UI version still on WIP
+## UI version
 ```bash
 pip install -r requirements.txt
 pip install windows-curses #Might need if you using windows
