@@ -138,12 +138,14 @@ async def activityHandler(stdscr, api, activity_id):
         due_str = due_dt.strftime("%Y-%m-%d %H:%M")
     except:
         due_str = deadline
-
+        
+    upload_list = ["No files uploaded"]
     uploads = response.get("uploads", [])
-    upload_list = [
-        f"{upload.get('name', 'N/A')} (ID: {upload.get('reference_id', 'N/A')})"
-        for upload in uploads
-    ]
+    if uploads is not None:
+        upload_list = [
+            f"{upload.get('name', 'N/A')} (ID: {upload.get('reference_id', 'N/A')})"
+            for upload in uploads
+        ]
 
     raw_description = response.get("data", {}).get("description", "")
     soup = BeautifulSoup(raw_description, "html.parser")
