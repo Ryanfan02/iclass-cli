@@ -138,7 +138,7 @@ async def activityHandler(stdscr, api, activity_id):
         due_str = due_dt.strftime("%Y-%m-%d %H:%M")
     except:
         due_str = deadline
-        
+
     upload_list = ["No files uploaded"]
     uploads = response.get("uploads", [])
     if uploads is not None:
@@ -148,6 +148,17 @@ async def activityHandler(stdscr, api, activity_id):
         ]
 
     raw_description = response.get("data", {}).get("description", "")
+    content = response.get("data", {}).get("content", "")
+    link = response.get("data", {}).get("link", "")
+    # Format description
+    if content: 
+        raw_description = content + "\n\n" + raw_description
+    if link:
+        raw_description += f"\n\n🔗 Link: {link}"
+    if not raw_description:
+        raw_description = "No description provided."
+    
+    # Parse HTML description if present
     soup = BeautifulSoup(raw_description, "html.parser")
     description = soup.get_text(separator='\n').strip()
 
