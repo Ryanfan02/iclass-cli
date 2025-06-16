@@ -6,3 +6,4 @@ dist/
 test*
 *.pyc
 *.spec
+*.ttf
