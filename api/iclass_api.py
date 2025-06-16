@@ -199,3 +199,25 @@ class TronClassAPI:
             print(upload_response.text)
             print(f"Upload file id {upload_file_id}")
         return upload_file_id
+    
+    async def deleteUpload(self, upload_ids: list):
+        url = "https://iclass.tku.edu.tw/api/user/uploads"
+        headers = {
+            'accept': 'application/json, text/plain, */*',
+            'accept-language': 'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7',
+            'content-type': 'text/plain;charset=UTF-8',
+            'origin': 'https://iclass.tku.edu.tw',
+            'referer': 'https://iclass.tku.edu.tw/user/resources/files',
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36'
+        }
+        payload = {
+            "upload_ids": upload_ids
+        }
+        try:
+            response = self.session.delete(url, headers=headers, data=json.dumps(payload))
+            if response.ok:
+                return {"Deletion successful": response.status_code}
+            else:
+                return {"Deletion failed": response.status_code, "details": response.text}
+        except requests.exceptions.RequestException as e:
+            return {"error": f"Error deleting uploads: {str(e)}"}
