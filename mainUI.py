@@ -265,6 +265,7 @@ async def upload_file_page(stdscr, api):
                 try:
                     uploaded_path = await api.upload_file(input_path)
                     result = f"✅ Uploaded: {uploaded_path}"
+                    break
                 except Exception as e:
                     result = f"❌ Upload failed: {str(e)}"
             else:
