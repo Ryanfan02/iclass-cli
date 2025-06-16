@@ -1,11 +1,17 @@
 # mainUI.py
 import asyncio
+import signal
 import curses
 from api.auth_module import Authenticator
 from api.iclass_api import TronClassAPI
 from bs4 import BeautifulSoup
 from datetime import datetime
 import os
+
+def handle_exit(signum, frame):
+    raise KeyboardInterrupt
+
+signal.signal(signal.SIGINT, handle_exit)
 
 def draw_menu(stdscr, selected_idx, options, title):
     stdscr.clear()
@@ -406,4 +412,7 @@ async def get_my_files_ui(stdscr, api):
             break
 
 if __name__ == '__main__':
-    curses.wrapper(lambda stdscr: asyncio.run(curses_main(stdscr)))
+    try:
+        curses.wrapper(lambda stdscr: asyncio.run(curses_main(stdscr)))
+    except KeyboardInterrupt:
+        print("\nProgram exited with Ctrl+C")
