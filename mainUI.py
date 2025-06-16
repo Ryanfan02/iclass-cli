@@ -140,12 +140,10 @@ async def activityHandler(stdscr, api, activity_id):
         due_str = deadline
 
     uploads = response.get("uploads", [])
-    if uploads:
-        upload_name = uploads[0].get("name", "N/A")
-        upload_ref_id = str(uploads[0].get("reference_id", "N/A"))
-    else:
-        upload_name = "None"
-        upload_ref_id = "None"
+    upload_list = [
+        f"{upload.get('name', 'N/A')} (ID: {upload.get('reference_id', 'N/A')})"
+        for upload in uploads
+    ]
 
     raw_description = response.get("data", {}).get("description", "")
     soup = BeautifulSoup(raw_description, "html.parser")
@@ -163,13 +161,14 @@ async def activityHandler(stdscr, api, activity_id):
         f"🆔 ID: {response.get('id', 'N/A')}",
         f"📂 Type: {activity_type}",
         f"⏰ Deadline: {due_str}",
-        f"📎 File Name: {upload_name}",
-        f"📁 File ID: {upload_ref_id}",
+        "",
+        "📎 Uploaded Files:"
+    ] + upload_list + [
         "",
         "📝 Description:"
     ] + wrapped_desc + [
         "",
-        "🔙 Press 'q' to go back" + (" | 💾 Press 'd' to download file" if upload_ref_id != "None" else "")
+        "🔙 Press 'q' to go back | 💾 Press 'd' to download all files"
     ]
 
     offset = 0
@@ -190,12 +189,13 @@ async def activityHandler(stdscr, api, activity_id):
             offset -= 1
         elif key == curses.KEY_DOWN and offset < len(lines) - h + 2:
             offset += 1
-        elif key == ord('d') and upload_ref_id != "None":
-            status = "⬇️ Downloading..."
+        elif key == ord('d') and uploads:
+            status = "⬇️ Downloading all files..."
             stdscr.refresh()
             try:
-                filepath = await api.download(upload_ref_id)
-                status = f"✅ Saved to: {filepath}"
+                for upload in uploads:
+                    await api.download(upload.get("reference_id", ""))
+                status = "✅ All files downloaded successfully."
             except Exception as e:
                 status = f"❌ Download failed: {e}"
 
