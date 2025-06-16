@@ -370,6 +370,12 @@ async def get_my_files_ui(stdscr, api):
             selected -= 1
         elif key == curses.KEY_DOWN and selected < len(entries) - 1:
             selected += 1
+        elif key == curses.KEY_RIGHT and page < max_pages:
+            page += 1
+            selected = 0
+        elif key == curses.KEY_LEFT and page > 1:
+            page -= 1
+            selected = 0
         elif key in [curses.KEY_ENTER, ord("\n")]:
             if selected == len(entries) - 2:
                 if page < max_pages:
