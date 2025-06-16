@@ -1,5 +1,6 @@
 # main.py
 import asyncio
+import signal
 from api.auth_module import Authenticator
 from api.iclass_api import TronClassAPI
 from api.ilife_api import IifeAPI
@@ -193,5 +194,13 @@ async def main():
         else:
             print("❌ Invalid option.")
 
+def handle_exit(signum, frame):
+    print("\n👋 Exiting gracefully...")
+    raise KeyboardInterrupt
+
 if __name__ == '__main__':
-    asyncio.run(main())
+    signal.signal(signal.SIGINT, handle_exit)
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("Program terminated.")
