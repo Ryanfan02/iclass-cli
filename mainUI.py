@@ -198,7 +198,7 @@ async def upload_file_page(stdscr, api):
     stdscr.clear()
     h, w = stdscr.getmaxyx()
     input_path = ""
-    msg = "Enter file path to upload and press Enter:"
+    msg = "Enter file path to upload and press Enter: press ESC to go back"
     result = ""
 
     while True:
