@@ -193,9 +193,11 @@ async def activityHandler(stdscr, api, activity_id):
             status = "⬇️ Downloading all files..."
             stdscr.refresh()
             try:
+                filepaths = []
                 for upload in uploads:
-                    await api.download(upload.get("reference_id", ""))
-                status = "✅ All files downloaded successfully."
+                    filepath = await api.download(upload.get("reference_id", ""))
+                    filepaths.append(filepath)
+                status = f"✅ All files downloaded successfully: {', '.join(filepaths)}"
             except Exception as e:
                 status = f"❌ Download failed: {e}"
 
