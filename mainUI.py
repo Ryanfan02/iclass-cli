@@ -413,7 +413,7 @@ async def get_my_files_ui(stdscr, api, sumit=False):
                 stdscr.addstr(y, 2, entry[:w - 4])
 
         if sumit:
-            stdscr.addstr(h - 2, 2, "Press 's' to select file for submission", curses.A_BOLD)
+            stdscr.addstr(h - 2, 2, "Press 'enter' to select file for submission", curses.A_BOLD)
 
         stdscr.refresh()
         key = stdscr.getch()
@@ -441,8 +441,6 @@ async def get_my_files_ui(stdscr, api, sumit=False):
             stdscr.addstr(5, 2, "Press any key to continue...")
             stdscr.refresh()
             stdscr.getch()
-        elif key == ord('s') and sumit:
-            return file_ids[selected]
         elif key in [curses.KEY_ENTER, ord("\n")]:
             if selected == len(entries) - 2:
                 if page < max_pages:
@@ -458,17 +456,20 @@ async def get_my_files_ui(stdscr, api, sumit=False):
                     break
             else:
                 # Download selected file
-                file_ref = file_ids[selected]
-                try:
-                    filepath = await api.myfiledownload(file_ref)
-                    stdscr.clear()
-                    stdscr.addstr(3, 2, f"✅ Downloaded to: {filepath}")
-                except Exception as e:
-                    stdscr.clear()
-                    stdscr.addstr(3, 2, f"❌ Download failed: {e}")
-                stdscr.addstr(5, 2, "Press any key to continue...")
-                stdscr.refresh()
-                stdscr.getch()
+                if sumit:
+                    return file_ids[selected]
+                else:
+                    file_ref = file_ids[selected]
+                    try:
+                        filepath = await api.myfiledownload(file_ref)
+                        stdscr.clear()
+                        stdscr.addstr(3, 2, f"✅ Downloaded to: {filepath}")
+                    except Exception as e:
+                        stdscr.clear()
+                        stdscr.addstr(3, 2, f"❌ Download failed: {e}")
+                    stdscr.addstr(5, 2, "Press any key to continue...")
+                    stdscr.refresh()
+                    stdscr.getch()
         elif key == ord('q'):
             break
 
